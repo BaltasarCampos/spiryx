@@ -13,7 +13,7 @@ const CURRENT_FIELDS = [
   "european_aqi",
   "pm2_5",
   "pm10",
-  "o3",
+  "ozone",
   "nitrogen_dioxide",
   "sulphur_dioxide",
   "carbon_monoxide",

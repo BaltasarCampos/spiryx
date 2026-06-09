@@ -24,7 +24,7 @@ const VALID_PAYLOAD: OpenMeteoAirQualityResponse = {
     us_aqi: 42,
     pm2_5: 10,
     pm10: 20,
-    o3: 30,
+    ozone: 30,
     nitrogen_dioxide: null,
     sulphur_dioxide: null,
     carbon_monoxide: null,
@@ -153,7 +153,7 @@ describe("normalizePollutants", () => {
     const codes = result.map((r) => r.pollutantCode);
     expect(codes).toContain("pm2_5");
     expect(codes).toContain("pm10");
-    expect(codes).toContain("o3");
+    expect(codes).toContain("ozone");
     expect(codes).toContain("no2");
     expect(codes).toContain("so2");
     expect(codes).toContain("co");

@@ -33,7 +33,7 @@ const MOCK_SNAPSHOT: AirQualitySnapshot = {
   pollutants: [
     { pollutantCode: "pm2_5", displayName: "PM2.5", value: 10, unit: "ug/m3", availability: "available" },
     { pollutantCode: "pm10", displayName: "PM10", value: 20, unit: "ug/m3", availability: "available" },
-    { pollutantCode: "o3", displayName: "Ozone", value: null, unit: "ug/m3", availability: "missing" },
+    { pollutantCode: "ozone", displayName: "Ozone", value: null, unit: "ug/m3", availability: "missing" },
     { pollutantCode: "no2", displayName: "Nitrogen dioxide", value: null, unit: "ug/m3", availability: "missing" },
     { pollutantCode: "so2", displayName: "Sulfur dioxide", value: null, unit: "ug/m3", availability: "missing" },
     { pollutantCode: "co", displayName: "Carbon monoxide", value: null, unit: "ug/m3", availability: "missing" },

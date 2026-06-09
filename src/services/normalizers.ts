@@ -9,7 +9,7 @@ interface OpenMeteoCurrentPayload {
   european_aqi?: number | null;
   pm2_5?: number | null;
   pm10?: number | null;
-  o3?: number | null;
+  ozone?: number | null;
   nitrogen_dioxide?: number | null;
   sulphur_dioxide?: number | null;
   carbon_monoxide?: number | null;
@@ -38,7 +38,7 @@ interface PollutantDefinition {
 const POLLUTANT_DEFINITIONS: PollutantDefinition[] = [
   { pollutantCode: "pm2_5", displayName: "PM2.5", payloadKey: "pm2_5", unit: "ug/m3" },
   { pollutantCode: "pm10", displayName: "PM10", payloadKey: "pm10", unit: "ug/m3" },
-  { pollutantCode: "o3", displayName: "Ozone", payloadKey: "o3", unit: "ug/m3" },
+  { pollutantCode: "ozone", displayName: "Ozone", payloadKey: "ozone", unit: "ug/m3" },
   {
     pollutantCode: "no2",
     displayName: "Nitrogen dioxide",
