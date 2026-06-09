@@ -1,16 +1,68 @@
+import { AQISummaryCard } from "./components/organisms/AQISummaryCard";
 import { DashboardLayout } from "./components/organisms/DashboardLayout";
+import { LocationGate } from "./components/organisms/LocationGate";
+import { RetryButton } from "./components/atoms/RetryButton";
+import { StatusPanel } from "./components/molecules/StatusPanel";
+import { useGeolocation } from "./hooks/useGeolocation";
+import { useCurrentAQI } from "./hooks/useCurrentAQI";
 
 function App() {
+  const {
+    location,
+    isLoading: isLocating,
+    errorMessage: geoErrorMessage,
+    requestLocation,
+  } = useGeolocation();
+
+  const { permissionStatus, latitude, longitude } = location;
+  const isGranted = permissionStatus === "granted" && latitude !== null && longitude !== null;
+
+  const {
+    snapshot,
+    locationName,
+    loadState,
+    errorMessage: aqiErrorMessage,
+    refresh,
+  } = useCurrentAQI({ latitude, longitude, enabled: isGranted });
+
   return (
     <DashboardLayout>
-      <section aria-labelledby="dashboard-heading" className="space-y-3">
+      <section aria-labelledby="dashboard-heading" className="space-y-6">
         <h1 id="dashboard-heading" className="text-2xl font-bold tracking-tight text-ink">
           Local Air Quality
         </h1>
-        <p className="max-w-prose text-sm text-slate-700">
-          This dashboard will show your current AQI summary, health meaning, and pollutant detail after
-          location permission.
-        </p>
+
+        <LocationGate
+          permissionStatus={permissionStatus}
+          isLoading={isLocating}
+          errorMessage={geoErrorMessage}
+          onRetry={() => void requestLocation()}
+        >
+          {loadState === "loading" && (
+            <StatusPanel
+              tone="loading"
+              title="Loading air quality data"
+              message="Fetching current conditions for your location…"
+            />
+          )}
+
+          {loadState === "error" && (
+            <StatusPanel
+              tone="error"
+              title="Could not load air quality"
+              message={aqiErrorMessage ?? "An error occurred while loading data."}
+              action={<RetryButton onClick={() => void refresh()} />}
+            />
+          )}
+
+          {loadState === "success" && snapshot && (
+            <AQISummaryCard
+              snapshot={snapshot}
+              locationName={locationName}
+              onRefresh={() => void refresh()}
+            />
+          )}
+        </LocationGate>
       </section>
     </DashboardLayout>
   );
