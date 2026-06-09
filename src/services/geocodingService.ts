@@ -3,7 +3,7 @@ import { requestJson } from "./apiClient";
 import { normalizeLocationName, type OpenMeteoReverseGeocodingResponse } from "./normalizers";
 import { withRetry } from "../utils/retry";
 
-const GEOCODING_BASE_URL = "https://geocoding-api.open-meteo.com/v1/reverse";
+const GEOCODING_BASE_URL = "/api/geocodingFunction";
 
 export interface GetLocationNameInput {
   latitude: number;
@@ -22,8 +22,6 @@ export async function getLocationName(input: GetLocationNameInput): Promise<stri
           query: {
             latitude,
             longitude,
-            language: "en",
-            format: "json",
           },
         }),
       {
