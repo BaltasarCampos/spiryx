@@ -16,7 +16,7 @@ export type UnavailableReason =
   | "invalid_payload"
   | "stale_over_limit";
 
-export type PollutantCode = "pm2_5" | "pm10" | "o3" | "no2" | "so2" | "co";
+export type PollutantCode = "pm2_5" | "pm10" | "ozone" | "no2" | "so2" | "co";
 
 export interface PollutantReading {
   pollutantCode: PollutantCode;
