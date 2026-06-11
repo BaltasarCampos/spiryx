@@ -4,7 +4,7 @@ export const runtime = 'edge';
 const BASE_URL = "https://api-bdc.net/data/reverse-geocode";
 
 export default async function handler(request: Request): Promise<Response> {
-  const { searchParams } = new URL(request.url);
+  const { searchParams } = new URL(request.url, `${request.headers.get("x-forwarded-proto") || "https"}://${request.headers.get("host") || "localhost"}`);
   const latStrng = searchParams.get("latitude");
   const lonStrng = searchParams.get("longitude");
 
