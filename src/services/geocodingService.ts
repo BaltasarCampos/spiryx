@@ -2,7 +2,6 @@ import { AppError } from "./errors";
 import { requestJson } from "./apiClient";
 import { normalizeLocationName, type BigdatacloudReverseGeocodingResponse } from "./normalizers";
 import { withRetry } from "../utils/retry";
-import { format } from "path";
 
 const GEOCODING_BASE_URL = "https://nominatim.openstreetmap.org/reverse";
 
@@ -21,8 +20,8 @@ export async function getLocationName(input: GetLocationNameInput): Promise<stri
         requestJson<BigdatacloudReverseGeocodingResponse>(GEOCODING_BASE_URL, {
           signal,
           query: {
-            latitude,
-            longitude,
+            lat: latitude,
+            lon: longitude,
             format: "json",
           },
         }),
