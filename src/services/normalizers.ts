@@ -21,11 +21,27 @@ export interface OpenMeteoAirQualityResponse {
   current?: OpenMeteoCurrentPayload;
 }
 
-export interface OpenMeteoReverseGeocodingResponse {
-  results?: Array<{
-    name?: string;
-    country?: string;
-  }>;
+interface GeocodingFeature {
+  name: string;
+  country: string;
+}
+
+interface GeocodingProperties {
+  geocoding: GeocodingFeature;
+}
+
+interface Feature {
+  type: "Feature";
+  properties: GeocodingProperties;
+  geometry: {
+    type: string;
+    coordinates: [number, number];
+  };
+}
+
+export interface NominatimReverseGeocodingResponse {
+  type: "FeatureCollection";
+  features: Feature[];
 }
 
 interface PollutantDefinition {
@@ -64,12 +80,12 @@ function hasNumber(value: unknown): value is number {
 }
 
 function getAQIValue(current: OpenMeteoCurrentPayload): { value: number; scaleLabel: string } {
-  if (hasNumber(current.us_aqi)) {
-    return { value: current.us_aqi, scaleLabel: "US AQI" };
-  }
-
   if (hasNumber(current.european_aqi)) {
     return { value: current.european_aqi, scaleLabel: "EU CAQI" };
+  }
+
+  if (hasNumber(current.us_aqi)) {
+    return { value: current.us_aqi, scaleLabel: "US AQI" };
   }
 
   throw new InvalidPayloadError("AQI payload did not include a supported AQI field");
@@ -141,8 +157,8 @@ export function normalizeAirQualityResponse(payload: OpenMeteoAirQualityResponse
   };
 }
 
-export function normalizeLocationName(payload: OpenMeteoReverseGeocodingResponse): string {
-  const firstResult = payload.results?.[0];
+export function normalizeLocationName(payload: NominatimReverseGeocodingResponse): string {
+  const firstResult = payload.features[0]?.properties?.geocoding;
 
   if (!firstResult) {
     return "Current location";

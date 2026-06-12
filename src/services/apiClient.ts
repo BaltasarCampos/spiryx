@@ -5,7 +5,7 @@ export interface RequestJsonOptions extends Omit<RequestInit, "body"> {
   query?: Record<string, string | number | boolean | null | undefined>;
 }
 
-function buildUrl(input: string | URL, query?: RequestJsonOptions["query"]): string {
+export function buildUrl(input: string | URL, query?: RequestJsonOptions["query"]): string {
   const url = new URL(input.toString());
 
   if (query) {
@@ -17,6 +17,7 @@ function buildUrl(input: string | URL, query?: RequestJsonOptions["query"]): str
       url.searchParams.set(key, String(value));
     }
   }
+console.log("Built URL:", url.toString());
 
   return url.toString();
 }

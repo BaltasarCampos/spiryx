@@ -1,9 +1,9 @@
 import { AppError } from "./errors";
 import { requestJson } from "./apiClient";
-import { normalizeLocationName, type OpenMeteoReverseGeocodingResponse } from "./normalizers";
+import { normalizeLocationName, type NominatimReverseGeocodingResponse } from "./normalizers";
 import { withRetry } from "../utils/retry";
 
-const GEOCODING_BASE_URL = "/api/geocodingFunction";
+const GEOCODING_BASE_URL = "https://nominatim.openstreetmap.org/reverse";
 
 export interface GetLocationNameInput {
   latitude: number;
@@ -17,11 +17,13 @@ export async function getLocationName(input: GetLocationNameInput): Promise<stri
   try {
     const response = await withRetry(
       () =>
-        requestJson<OpenMeteoReverseGeocodingResponse>(GEOCODING_BASE_URL, {
+        requestJson<NominatimReverseGeocodingResponse>(GEOCODING_BASE_URL, {
           signal,
           query: {
-            latitude,
-            longitude,
+            lat: latitude,
+            lon: longitude,
+            format: "geocodejson",
+            zoom: 12, // town / borough level detail
           },
         }),
       {
@@ -31,7 +33,8 @@ export async function getLocationName(input: GetLocationNameInput): Promise<stri
     );
 
     return normalizeLocationName(response);
-  } catch {
+  } catch (error) {
+console.log(error);
     // Geocoding failure is non-fatal; fall back to a generic label
     return "Current location";
   }
