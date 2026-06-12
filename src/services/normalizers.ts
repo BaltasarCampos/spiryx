@@ -65,12 +65,12 @@ function hasNumber(value: unknown): value is number {
 }
 
 function getAQIValue(current: OpenMeteoCurrentPayload): { value: number; scaleLabel: string } {
-  if (hasNumber(current.us_aqi)) {
-    return { value: current.us_aqi, scaleLabel: "US AQI" };
-  }
-
   if (hasNumber(current.european_aqi)) {
     return { value: current.european_aqi, scaleLabel: "EU CAQI" };
+  }
+
+  if (hasNumber(current.us_aqi)) {
+    return { value: current.us_aqi, scaleLabel: "US AQI" };
   }
 
   throw new InvalidPayloadError("AQI payload did not include a supported AQI field");

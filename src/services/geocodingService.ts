@@ -3,7 +3,7 @@ import { requestJson } from "./apiClient";
 import { normalizeLocationName, type BigdatacloudReverseGeocodingResponse } from "./normalizers";
 import { withRetry } from "../utils/retry";
 
-const GEOCODING_BASE_URL = "/api/geocodingFunction";
+const GEOCODING_BASE_URL = "https://api-bdc.net/data/reverse-geocode";
 
 export interface GetLocationNameInput {
   latitude: number;

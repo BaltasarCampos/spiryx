@@ -17,6 +17,14 @@ const CURRENT_FIELDS = [
   "nitrogen_dioxide",
   "sulphur_dioxide",
   "carbon_monoxide",
+  "ammonia",
+  "methane",
+  "alder_pollen",
+  "birch_pollen",
+  "grass_pollen",
+  "mugwort_pollen",
+  "olive_pollen",
+  "ragweed_pollen"
 ].join(",");
 
 const cache = new MemoryCache<AirQualitySnapshot>(SESSION_CACHE_TTL_MS);
