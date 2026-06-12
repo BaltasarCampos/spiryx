@@ -21,11 +21,10 @@ export interface OpenMeteoAirQualityResponse {
   current?: OpenMeteoCurrentPayload;
 }
 
-export interface BigdatacloudReverseGeocodingResponse {
+export interface NominatimReverseGeocodingResponse {
   results?: Array<{
-    locality?: string;
-    city?: string;
-    countryName?: string;
+    name?: string;
+    country?: string;
   }>;
 }
 
@@ -142,13 +141,13 @@ export function normalizeAirQualityResponse(payload: OpenMeteoAirQualityResponse
   };
 }
 
-export function normalizeLocationName(payload: BigdatacloudReverseGeocodingResponse): string {
+export function normalizeLocationName(payload: NominatimReverseGeocodingResponse): string {
   const firstResult = payload.results?.[0];
 
   if (!firstResult) {
     return "Current location";
   }
 
-  const parts = [firstResult.locality, firstResult.city, firstResult.countryName].filter(Boolean);
+  const parts = [firstResult.name, firstResult.country].filter(Boolean);
   return parts.length > 0 ? parts.join(", ") : "Current location";
 }
