@@ -2,10 +2,9 @@ import { AppError } from "./errors";
 import { requestJson } from "./apiClient";
 import { normalizeLocationName, type BigdatacloudReverseGeocodingResponse } from "./normalizers";
 import { withRetry } from "../utils/retry";
-import { env } from "process";
 
 const GEOCODING_BASE_URL = "https://api-bdc.net/data/reverse-geocode";
-const key = env.BIGDATACLOUD_API_KEY;
+const key = process.env.BIGDATACLOUD_API_KEY;
 
 export interface GetLocationNameInput {
   latitude: number;
