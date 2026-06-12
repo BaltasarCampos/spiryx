@@ -24,8 +24,7 @@ export async function getLocationName(input: GetLocationNameInput): Promise<stri
           query: {
             latitude,
             longitude,
-            localityLanguage: "en",
-            key,            
+            key: key,           
           },
         }),
       {
