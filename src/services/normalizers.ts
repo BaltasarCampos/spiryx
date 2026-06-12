@@ -23,8 +23,14 @@ export interface OpenMeteoAirQualityResponse {
 
 export interface NominatimReverseGeocodingResponse {
   results?: Array<{
-    name?: string;
-    country?: string;
+    features: {
+      properties: {
+        geocoding: {
+          name?: string;
+          country?: string;
+        };
+      };
+    };
   }>;
 }
 
@@ -148,6 +154,6 @@ export function normalizeLocationName(payload: NominatimReverseGeocodingResponse
     return "Current location";
   }
 
-  const parts = [firstResult.name, firstResult.country].filter(Boolean);
+  const parts = [firstResult.features.properties.geocoding.name, firstResult.features.properties.geocoding.country].filter(Boolean);
   return parts.length > 0 ? parts.join(", ") : "Current location";
 }
