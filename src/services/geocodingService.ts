@@ -4,7 +4,7 @@ import { normalizeLocationName, type BigdatacloudReverseGeocodingResponse } from
 import { withRetry } from "../utils/retry";
 
 const GEOCODING_BASE_URL = "https://api-bdc.net/data/reverse-geocode";
-const key = process.env.VITE_BIG_DATA_CLOUD_API_KEY;
+const key = import.meta.env.VITE_BIG_DATA_CLOUD_API_KEY;
 console.log("Using BigDataCloud API key:", key ? "Yes" : "No");
 
 export interface GetLocationNameInput {
