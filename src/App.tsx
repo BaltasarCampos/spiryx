@@ -1,11 +1,12 @@
 import { AQISummaryCard } from "./components/organisms/AQISummaryCard";
 import { DashboardLayout } from "./components/organisms/DashboardLayout";
+import { HealthMeaningPanel } from "./components/organisms/HealthMeaningPanel";
 import { LocationGate } from "./components/organisms/LocationGate";
 import { RetryButton } from "./components/atoms/RetryButton";
 import { StatusPanel } from "./components/molecules/StatusPanel";
 import { useGeolocation } from "./hooks/useGeolocation";
 import { useCurrentAQI } from "./hooks/useCurrentAQI";
-
+ 
 function App() {
   const {
     location,
@@ -13,10 +14,10 @@ function App() {
     errorMessage: geoErrorMessage,
     requestLocation,
   } = useGeolocation();
-
+ 
   const { permissionStatus, latitude, longitude } = location;
   const isGranted = permissionStatus === "granted" && latitude !== null && longitude !== null;
-
+ 
   const {
     snapshot,
     locationName,
@@ -24,14 +25,14 @@ function App() {
     errorMessage: aqiErrorMessage,
     refresh,
   } = useCurrentAQI({ latitude, longitude, enabled: isGranted });
-
+ 
   return (
     <DashboardLayout>
       <section aria-labelledby="dashboard-heading" className="space-y-6">
         <h1 id="dashboard-heading" className="text-2xl font-bold tracking-tight text-ink">
           Local Air Quality
         </h1>
-
+ 
         <LocationGate
           permissionStatus={permissionStatus}
           isLoading={isLocating}
@@ -45,7 +46,7 @@ function App() {
               message="Fetching current conditions for your location…"
             />
           )}
-
+ 
           {loadState === "error" && (
             <StatusPanel
               tone="error"
@@ -54,18 +55,22 @@ function App() {
               action={<RetryButton onClick={() => void refresh()} />}
             />
           )}
-
+ 
           {loadState === "success" && snapshot && (
-            <AQISummaryCard
-              snapshot={snapshot}
-              locationName={locationName}
-              onRefresh={() => void refresh()}
-            />
+            <div className="space-y-4">
+              <AQISummaryCard
+                snapshot={snapshot}
+                locationName={locationName}
+                onRefresh={() => void refresh()}
+              />
+              <HealthMeaningPanel snapshot={snapshot} />
+            </div>
           )}
         </LocationGate>
       </section>
     </DashboardLayout>
   );
 }
-
+ 
 export default App;
+ 
