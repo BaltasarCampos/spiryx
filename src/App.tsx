@@ -53,7 +53,7 @@ function App() {
               tone="error"
               title="Could not load air quality"
               message={aqiErrorMessage ?? "An error occurred while loading data."}
-              action={<RetryButton onClick={() => void refresh()} />}
+              action={<RetryButton onClick={() => refresh()} />}
             />
           )}
  
@@ -62,7 +62,7 @@ function App() {
               <AQISummaryCard
                 snapshot={snapshot}
                 locationName={locationName}
-                onRefresh={() => void refresh()}
+                onRefresh={() => refresh()}
               />
               <HealthMeaningPanel snapshot={snapshot} />
               <PollutantList pollutants={snapshot.pollutants} />
