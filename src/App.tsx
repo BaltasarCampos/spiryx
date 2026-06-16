@@ -1,6 +1,7 @@
 import { AQISummaryCard } from "./components/organisms/AQISummaryCard";
 import { DashboardLayout } from "./components/organisms/DashboardLayout";
 import { HealthMeaningPanel } from "./components/organisms/HealthMeaningPanel";
+import { PollutantList } from "./components/organisms/PollutantList";
 import { LocationGate } from "./components/organisms/LocationGate";
 import { RetryButton } from "./components/atoms/RetryButton";
 import { StatusPanel } from "./components/molecules/StatusPanel";
@@ -64,6 +65,7 @@ function App() {
                 onRefresh={() => void refresh()}
               />
               <HealthMeaningPanel snapshot={snapshot} />
+              <PollutantList pollutants={snapshot.pollutants} />
             </div>
           )}
         </LocationGate>

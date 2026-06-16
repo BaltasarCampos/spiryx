@@ -67,7 +67,7 @@ const DENIED_LOCATION: UseGeolocationResult = {
   resetLocation: vi.fn(),
 };
  
-describe("US1 integration – permission granted flow", () => {
+describe("Integration – permission granted flow", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useGeolocation).mockReturnValue(GRANTED_LOCATION);
@@ -121,7 +121,7 @@ describe("US1 integration – permission granted flow", () => {
   });
 });
  
-describe("US1 integration – permission denied flow", () => {
+describe("Integration – permission denied flow", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useGeolocation).mockReturnValue(DENIED_LOCATION);
@@ -159,7 +159,7 @@ describe("US1 integration – permission denied flow", () => {
   });
 });
  
-describe("US1 integration – manual refresh", () => {
+describe("Integration – manual refresh", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useGeolocation).mockReturnValue(GRANTED_LOCATION);
