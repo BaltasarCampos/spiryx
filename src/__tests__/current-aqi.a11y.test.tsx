@@ -1,5 +1,5 @@
 /**
- * T023 – US1 accessibility tests.
+ * Accessibility tests.
  *
  * Verifies ARIA roles, labels, and live-region announcements for the
  * AQI summary card, status panels, and retry controls.

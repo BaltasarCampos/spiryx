@@ -17,7 +17,6 @@ export function buildUrl(input: string | URL, query?: RequestJsonOptions["query"
       url.searchParams.set(key, String(value));
     }
   }
-console.log("Built URL:", url.toString());
 
   return url.toString();
 }

@@ -1,9 +1,8 @@
 /**
- * T021 – LocationGate component tests.
+ * LocationGate component tests.
  *
  * Tests the three gate states (loading, denied, unavailable) and the
  * pass-through to children when permission is granted or prompt.
- * These tests will fail until LocationGate is implemented (T028).
  */
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";

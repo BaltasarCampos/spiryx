@@ -12,7 +12,13 @@
     "format": "prettier --check .",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "check:bundle": "node scripts/bundle-budget.mjs",
+    "check:privacy": "node scripts/privacy-audit.mjs",
+    "check:coverage": "node scripts/coverage-gate.mjs",
+    "check:lighthouse": "node scripts/lighthouse-check.mjs",
+    "check:interaction": "node scripts/interaction-budget.mjs",
+    "validate": "npm run typecheck && npm run lint && npm run test && npm run build && npm run check:bundle && npm run check:privacy"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -26,7 +32,6 @@
     "@types/node": "^20.14.8",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@vercel/node": "^5.8.14",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
     "eslint": "^9.6.0",

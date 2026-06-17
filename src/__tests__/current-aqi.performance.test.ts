@@ -1,10 +1,9 @@
 /**
- * T024 – US1 performance budget tests.
+ * Performance budget tests.
  *
  * Verifies that AQI summary card and status panels render within acceptable
  * time budgets in the test environment as a smoke-test against catastrophically
- * slow renders.
- * Will fail until AQISummaryCard is implemented (T029).
+ * slow renders..
  */
 import React from "react";
 import { render } from "@testing-library/react";

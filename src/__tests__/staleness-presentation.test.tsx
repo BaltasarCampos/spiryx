@@ -48,7 +48,7 @@ const EXPIRED_SNAPSHOT = makeSnapshot({
 // Fresh state — both components show full data, no warnings
 // ---------------------------------------------------------------------------
  
-describe("T049 – fresh state: full data, no warnings", () => {
+describe("Fresh state: full data, no warnings", () => {
   it("AQISummaryCard shows 'Live' badge for fresh data", () => {
     render(
       <AQISummaryCard snapshot={FRESH_SNAPSHOT} locationName="London" onRefresh={() => {}} />,
@@ -82,7 +82,7 @@ describe("T049 – fresh state: full data, no warnings", () => {
 // Stale state (>90 min) — both components warn, AQI still visible
 // ---------------------------------------------------------------------------
  
-describe("T049 – stale state (>90 min): warnings shown, AQI still visible", () => {
+describe("Stale state (>90 min): warnings shown, AQI still visible", () => {
   it("AQISummaryCard shows 'Stale data' badge for stale data", () => {
     render(
       <AQISummaryCard snapshot={STALE_SNAPSHOT} locationName="London" onRefresh={() => {}} />,
@@ -135,7 +135,7 @@ describe("T049 – stale state (>90 min): warnings shown, AQI still visible", ()
 // Expired state (>180 min) — AQI hidden, strong warnings in both
 // ---------------------------------------------------------------------------
  
-describe("T049 – expired state (>180 min): AQI hidden, strong warnings", () => {
+describe("Expired state (>180 min): AQI hidden, strong warnings", () => {
   it("AQISummaryCard shows 'Data unavailable' badge for expired data", () => {
     render(
       <AQISummaryCard snapshot={EXPIRED_SNAPSHOT} locationName="London" onRefresh={() => {}} />,

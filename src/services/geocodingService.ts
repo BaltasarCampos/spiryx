@@ -34,7 +34,6 @@ export async function getLocationName(input: GetLocationNameInput): Promise<stri
 
     return normalizeLocationName(response);
   } catch (error) {
-console.log(error);
     // Geocoding failure is non-fatal; fall back to a generic label
     return "Current location";
   }

@@ -1,5 +1,5 @@
 /**
- * T032 – Privacy constraint test: no coordinate persistence.
+ * Privacy constraint test: no coordinate persistence.
  *
  * Verifies that runtime location coordinates are held only in React state
  * and are never written to localStorage or sessionStorage.
