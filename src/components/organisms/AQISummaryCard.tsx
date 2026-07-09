@@ -1,25 +1,25 @@
 import type { AirQualitySnapshot } from "../../types/airQuality";
-
+ 
 interface AQISummaryCardProps {
   isRefreshing?: boolean;
   locationName: string | null;
   onRefresh: () => void;
   snapshot: AirQualitySnapshot;
 }
-
+ 
 // Full class names must be literals so Tailwind's content scan includes them.
 const FRESHNESS_BADGE: Record<string, string> = {
   fresh: "bg-emerald-100 text-emerald-800",
   stale: "bg-amber-100 text-amber-800",
   expired: "bg-rose-100 text-rose-800",
 };
-
+ 
 const FRESHNESS_LABEL: Record<string, string> = {
   fresh: "Live",
   stale: "Stale data",
   expired: "Data unavailable",
 };
-
+ 
 const CATEGORY_RING: Record<string, string> = {
   good: "ring-emerald-400",
   moderate: "ring-yellow-400",
@@ -29,14 +29,14 @@ const CATEGORY_RING: Record<string, string> = {
   hazardous: "ring-rose-700",
   unknown: "ring-slate-300",
 };
-
+ 
 function formatTimestamp(isoString: string): string {
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(isoString));
 }
-
+ 
 export function AQISummaryCard({
   isRefreshing = false,
   locationName,
@@ -54,12 +54,12 @@ export function AQISummaryCard({
     sourceUrl,
     unavailableReason,
   } = snapshot;
-
+ 
   const isExpired = freshnessState === "expired";
   const badgeClass = FRESHNESS_BADGE[freshnessState] ?? FRESHNESS_BADGE.fresh;
   const freshnessLabel = FRESHNESS_LABEL[freshnessState] ?? "Live";
   const ringClass = CATEGORY_RING[categoryKey] ?? CATEGORY_RING.unknown;
-
+ 
   return (
     <section aria-labelledby="aqi-summary-heading" className="space-y-4">
       {/* Header row */}
@@ -84,7 +84,7 @@ export function AQISummaryCard({
           {freshnessLabel}
         </span>
       </div>
-
+ 
       {/* AQI display */}
       {isExpired ? (
         <p role="alert" className="text-sm font-medium text-rose-700">
@@ -105,7 +105,7 @@ export function AQISummaryCard({
           <p className="text-center text-sm text-slate-700">{healthSummary}</p>
         </div>
       )}
-
+ 
       {/* Metadata */}
       <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-slate-600">
         <div>
@@ -134,12 +134,13 @@ export function AQISummaryCard({
           </div>
         )}
       </dl>
-
+ 
       {/* Refresh control */}
       <div className="flex justify-end">
         <button
           type="button"
           aria-label="Refresh air quality data"
+          aria-busy={isRefreshing}
           disabled={isRefreshing}
           onClick={onRefresh}
           className="inline-flex items-center gap-1.5 rounded-full bg-tide px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tide disabled:cursor-not-allowed disabled:opacity-60"
@@ -150,3 +151,4 @@ export function AQISummaryCard({
     </section>
   );
 }
+ 

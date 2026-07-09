@@ -24,12 +24,16 @@ export function StatusPanel({
   title,
   tone = "info",
 }: StatusPanelProps) {
-  const liveRole = tone === "error" || tone === "warning" ? "alert" : "status";
+  const isAlert = tone === "error" || tone === "warning";
+  const liveRole = isAlert ? "alert" : "status";
+  // Alerts must use assertive so screen readers interrupt current speech
+  // immediately. Informational/loading states use polite (A11Y-002).
+  const ariaLive = isAlert ? "assertive" : "polite";
 
   return (
     <section
       role={liveRole}
-      aria-live="polite"
+      aria-live={ariaLive}
       className={`space-y-3 rounded-2xl border p-4 shadow-sm ${TONE_STYLES[tone]}`}
     >
       <div className="space-y-1">
