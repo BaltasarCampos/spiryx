@@ -84,7 +84,7 @@ export function useCurrentAQI({
   // also resets the interval, preventing a double-fetch shortly after.
   // Refresh-triggered fetches always bypass the cache (unlike the initial
   // mount fetch) so a "Refresh" click never silently returns a stale
-  // snapshot within the cache TTL window (speckit-analyze finding C1).
+  // snapshot within the cache TTL window.
   const { triggerRefresh } = useRefreshTimer({
     onRefresh: useCallback(() => void doFetch(true), [doFetch]),
     enabled: enabled && latitude !== null && longitude !== null,

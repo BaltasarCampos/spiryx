@@ -5,7 +5,7 @@ export const AUTO_REFRESH_INTERVAL_MS = 15 * 60 * 1000;
 export const MAX_RETRY_ATTEMPTS = 3;
 export const RETRY_BASE_DELAY_MS = 400;
 // Kept below AUTO_REFRESH_INTERVAL_MS (15min) so every scheduled or manual
-// refresh always misses the cache and hits the network (speckit-analyze C1).
+// refresh always misses the cache and hits the network.
 export const SESSION_CACHE_TTL_MS = 10 * 60 * 1000;
 
 export const GEOLOCATION_TIMEOUT_MS = 10 * 1000;

@@ -1,12 +1,3 @@
-/**
- * T002a – Regression test for /speckit-analyze finding C1.
- *
- * SESSION_CACHE_TTL_MS (10min) must stay below AUTO_REFRESH_INTERVAL_MS
- * (15min) so scheduled auto-refresh always misses the cache. Manual refresh
- * must also always issue a fresh network request even if triggered before
- * the cache TTL has elapsed — a "Refresh" click that silently returns a
- * stale cached snapshot would be a real-time data accuracy regression.
- */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useCurrentAQI } from "../useCurrentAQI";
@@ -37,7 +28,7 @@ function makePayload() {
   };
 }
 
-describe("useCurrentAQI – cache TTL vs refresh interval (C1 regression)", () => {
+describe("useCurrentAQI – cache TTL vs refresh interval", () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.clearAllMocks();
