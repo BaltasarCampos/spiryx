@@ -37,15 +37,19 @@ export interface GetCurrentAQIInput {
   latitude: number;
   longitude: number;
   signal?: AbortSignal;
+  /** Skip the cache read (still writes a fresh entry). Used for refresh-triggered fetches. */
+  bypassCache?: boolean;
 }
 
 export async function getCurrentAQI(input: GetCurrentAQIInput): Promise<AirQualitySnapshot> {
-  const { latitude, longitude, signal } = input;
+  const { latitude, longitude, signal, bypassCache = false } = input;
   const cacheKey = makeCacheKey(latitude, longitude);
 
-  const cached = cache.get(cacheKey);
-  if (cached) {
-    return cached;
+  if (!bypassCache) {
+    const cached = cache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
   }
 
   const snapshot = await withRetry(
