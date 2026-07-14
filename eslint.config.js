@@ -17,6 +17,15 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    // Node CLI check scripts (bundle budget, privacy audit, etc.)
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: globals.node,
+    },
+  },
+  {
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: "latest",

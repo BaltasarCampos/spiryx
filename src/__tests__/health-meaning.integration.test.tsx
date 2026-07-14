@@ -13,6 +13,8 @@ vi.mock("../hooks/useGeolocation", () => ({
 vi.mock("../services/airQualityService", () => ({
   getCurrentAQI: vi.fn(),
   clearAQICache: vi.fn(),
+  getHourlyForecast: vi.fn(),
+  clearForecastCache: vi.fn(),
 }));
 vi.mock("../services/geocodingService", () => ({
   getLocationName: vi.fn(),
@@ -98,10 +100,10 @@ const GRANTED_LOCATION: UseGeolocationResult = {
 };
  
 // ---------------------------------------------------------------------------
-// US2 AC1 – initial render shows health category and guidance
+// Initial render shows health category and guidance
 // ---------------------------------------------------------------------------
  
-describe("US2 integration – initial health meaning render", () => {
+describe("Integration – initial health meaning render", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useGeolocation).mockReturnValue(GRANTED_LOCATION);
@@ -156,10 +158,10 @@ describe("US2 integration – initial health meaning render", () => {
 });
  
 // ---------------------------------------------------------------------------
-// US2 AC2 – health meaning updates when category worsens on refresh
+// Health meaning updates when category worsens on refresh
 // ---------------------------------------------------------------------------
  
-describe("US2 integration – category worsens after manual refresh (US2 AC2)", () => {
+describe("Integration – category worsens after manual refresh", () => {
   beforeEach(() => {
     // mockReset clears both call history AND queued mockResolvedValueOnce values,
     // preventing mock bleed between tests in this describe block.
@@ -276,10 +278,10 @@ describe("US2 integration – category worsens after manual refresh (US2 AC2)", 
 });
  
 // ---------------------------------------------------------------------------
-// SH-001 / T039 – stale and expired freshness reflected in health panel
+// Stale and expired freshness reflected in health panel
 // ---------------------------------------------------------------------------
  
-describe("US2 integration – stale and expired freshness states (SH-001)", () => {
+describe("Integration – stale and expired freshness states", () => {
   beforeEach(() => {
     // mockReset prevents queued mockResolvedValueOnce values from the previous
     // describe block bleeding into these tests.
@@ -357,10 +359,10 @@ describe("US2 integration – stale and expired freshness states (SH-001)", () =
 });
  
 // ---------------------------------------------------------------------------
-// DAR-003 – expired snapshot: AQI not shown as current
+// Expired snapshot: AQI not shown as current
 // ---------------------------------------------------------------------------
  
-describe("US2 integration – expired snapshot handling (DAR-003)", () => {
+describe("Integration – expired snapshot handling", () => {
   beforeEach(() => {
     vi.mocked(getCurrentAQI).mockReset();
     vi.mocked(getLocationName).mockReset();

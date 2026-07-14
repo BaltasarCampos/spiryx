@@ -1,17 +1,31 @@
 /**
- * T019 – Open-Meteo Air Quality API contract tests.
+ * Open-Meteo Air Quality API contract tests.
  *
  * These tests verify the normalization contract between the raw provider payload
  * and the internal AirQualitySnapshot domain model.
  * They will fail until normalizeAirQualityResponse covers all branches correctly.
  */
-import { describe, expect, it } from "vitest";
-import { InvalidPayloadError } from "../errors";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { InvalidPayloadError, NetworkError } from "../errors";
 import {
   normalizeAirQualityResponse,
   normalizePollutants,
   type OpenMeteoAirQualityResponse,
 } from "../normalizers";
+import {
+  clearAQICache,
+  clearForecastCache,
+  getCurrentAQI,
+  getHourlyForecast,
+} from "../airQualityService";
+import {
+  FORECAST_CACHE_TTL_MS,
+  FORECAST_PREFETCH_LEAD_MS,
+  RETRY_BASE_DELAY_MS,
+} from "../../config/constants";
+
+vi.mock("../apiClient", () => ({ requestJson: vi.fn() }));
+import { requestJson } from "../apiClient";
 
 // Keep the Z suffix so Node.js parses it as UTC regardless of system timezone.
 const VALID_OBSERVED_AT = new Date(Date.now() - 30 * 60_000).toISOString();
@@ -157,5 +171,147 @@ describe("normalizePollutants", () => {
     expect(codes).toContain("no2");
     expect(codes).toContain("so2");
     expect(codes).toContain("co");
+  });
+});
+
+/**
+ * Uses the real normalizers against a mocked apiClient, mirroring how the
+ * current-conditions contract is exercised end to end within the service.
+ */
+const HOUR_MS = 3_600_000;
+const LATITUDE = 51.5074;
+const LONGITUDE = -0.1278;
+
+function makeForecastPayload(hours = 48): OpenMeteoAirQualityResponse {
+  const start = new Date();
+  start.setMinutes(0, 0, 0);
+  return {
+    latitude: LATITUDE,
+    longitude: LONGITUDE,
+    hourly: {
+      time: Array.from({ length: hours }, (_, i) =>
+        new Date(start.getTime() + i * HOUR_MS).toISOString(),
+      ),
+      us_aqi: Array(hours).fill(42),
+    },
+  };
+}
+
+function makeCurrentPayload(): OpenMeteoAirQualityResponse {
+  return {
+    latitude: LATITUDE,
+    longitude: LONGITUDE,
+    current: { time: new Date().toISOString(), us_aqi: 42, pm2_5: 10 },
+  };
+}
+
+describe("getHourlyForecast – request and caching contract", () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.clearAllMocks();
+    clearForecastCache();
+    clearAQICache();
+    vi.mocked(requestJson).mockImplementation(() => Promise.resolve(makeForecastPayload()));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    clearForecastCache();
+    clearAQICache();
+  });
+
+  it("requests hourly us_aqi,european_aqi with forecast_days=2", async () => {
+    await getHourlyForecast({ latitude: LATITUDE, longitude: LONGITUDE });
+    const [, options] = vi.mocked(requestJson).mock.calls[0];
+    expect(options?.query).toMatchObject({
+      hourly: "us_aqi,european_aqi",
+      forecast_days: 2,
+    });
+  });
+
+  it("serves a second call within the 3h TTL from cache without a network request", async () => {
+    const first = await getHourlyForecast({ latitude: LATITUDE, longitude: LONGITUDE });
+    const second = await getHourlyForecast({ latitude: LATITUDE, longitude: LONGITUDE });
+    expect(requestJson).toHaveBeenCalledTimes(1);
+    expect(second).toBe(first);
+  });
+
+  it("fetches fresh data once the 3h TTL has expired", async () => {
+    await getHourlyForecast({ latitude: LATITUDE, longitude: LONGITUDE });
+    await vi.advanceTimersByTimeAsync(FORECAST_CACHE_TTL_MS + 60_000);
+    await getHourlyForecast({ latitude: LATITUDE, longitude: LONGITUDE });
+    expect(requestJson).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps the prefetch lead shorter than the cache TTL so prefetch lands before expiry", () => {
+    expect(FORECAST_PREFETCH_LEAD_MS).toBeLessThan(FORECAST_CACHE_TTL_MS);
+  });
+
+  it("a bypassCache prefetch ~30min before expiry re-warms the cache past the original TTL", async () => {
+    await getHourlyForecast({ latitude: LATITUDE, longitude: LONGITUDE });
+
+    // Advance to the prefetch point: FORECAST_PREFETCH_LEAD_MS before expiry.
+    await vi.advanceTimersByTimeAsync(FORECAST_CACHE_TTL_MS - FORECAST_PREFETCH_LEAD_MS);
+    await getHourlyForecast({ latitude: LATITUDE, longitude: LONGITUDE, bypassCache: true });
+    expect(requestJson).toHaveBeenCalledTimes(2);
+
+    // Past the original entry's expiry the re-warmed entry still serves from cache.
+    await vi.advanceTimersByTimeAsync(FORECAST_PREFETCH_LEAD_MS + 60_000);
+    await getHourlyForecast({ latitude: LATITUDE, longitude: LONGITUDE });
+    expect(requestJson).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("getHourlyForecast – retry and failure isolation", () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.clearAllMocks();
+    clearForecastCache();
+    clearAQICache();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    clearForecastCache();
+    clearAQICache();
+  });
+
+  it("retries retryable errors with backoff and resolves on a later attempt", async () => {
+    vi.mocked(requestJson)
+      .mockRejectedValueOnce(new NetworkError())
+      .mockRejectedValueOnce(new NetworkError())
+      .mockImplementation(() => Promise.resolve(makeForecastPayload()));
+
+    const promise = getHourlyForecast({ latitude: LATITUDE, longitude: LONGITUDE });
+    await vi.advanceTimersByTimeAsync(RETRY_BASE_DELAY_MS * 4);
+    const window = await promise;
+
+    expect(window.coveredHours).toBe(48);
+    expect(requestJson).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not retry an InvalidPayloadError (malformed forecast payload)", async () => {
+    vi.mocked(requestJson).mockResolvedValue({ latitude: LATITUDE, longitude: LONGITUDE });
+
+    await expect(
+      getHourlyForecast({ latitude: LATITUDE, longitude: LONGITUDE }),
+    ).rejects.toBeInstanceOf(InvalidPayloadError);
+    expect(requestJson).toHaveBeenCalledTimes(1);
+  });
+
+  it("forecast failure is isolated from getCurrentAQI", async () => {
+    vi.mocked(requestJson).mockImplementation((_url, options) => {
+      if (options?.query && "hourly" in options.query) {
+        return Promise.reject(new InvalidPayloadError("forecast down"));
+      }
+      return Promise.resolve(makeCurrentPayload());
+    });
+
+    await expect(
+      getHourlyForecast({ latitude: LATITUDE, longitude: LONGITUDE }),
+    ).rejects.toBeInstanceOf(InvalidPayloadError);
+
+    const snapshot = await getCurrentAQI({ latitude: LATITUDE, longitude: LONGITUDE });
+    expect(snapshot.aqiValue).toBe(42);
   });
 });

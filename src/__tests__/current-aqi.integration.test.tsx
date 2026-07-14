@@ -11,6 +11,8 @@ vi.mock("../hooks/useGeolocation", () => ({
 vi.mock("../services/airQualityService", () => ({
   getCurrentAQI: vi.fn(),
   clearAQICache: vi.fn(),
+  getHourlyForecast: vi.fn(),
+  clearForecastCache: vi.fn(),
 }));
 vi.mock("../services/geocodingService", () => ({
   getLocationName: vi.fn(),

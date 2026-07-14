@@ -2,6 +2,7 @@ import { getAQICategoryDescriptor } from "../utils/aqiMapping";
 import { getFreshnessState } from "../utils/freshness";
 import { InvalidPayloadError } from "./errors";
 import type { AirQualitySnapshot, PollutantCode, PollutantReading } from "../types/airQuality";
+import type { ForecastWindow, HourlyForecastPoint } from "../types/activity";
 
 interface OpenMeteoCurrentPayload {
   time?: string;
@@ -15,10 +16,17 @@ interface OpenMeteoCurrentPayload {
   carbon_monoxide?: number | null;
 }
 
+export interface OpenMeteoHourlyPayload {
+  time?: string[];
+  us_aqi?: (number | null)[];
+  european_aqi?: (number | null)[];
+}
+
 export interface OpenMeteoAirQualityResponse {
   latitude?: number;
   longitude?: number;
   current?: OpenMeteoCurrentPayload;
+  hourly?: OpenMeteoHourlyPayload;
 }
 
 interface GeocodingFeature {
@@ -154,6 +162,79 @@ export function normalizeAirQualityResponse(payload: OpenMeteoAirQualityResponse
     freshnessState,
     unavailableReason: "none",
     pollutants,
+  };
+}
+
+const FORECAST_WINDOW_HOURS = 48;
+
+/**
+ * Picks the hourly AQI series with the same scale preference as current
+ * conditions (EU CAQI first, US AQI fallback) so a single snapshot never
+ * mixes scales. Only a series matching `time`'s length is usable.
+ */
+function getHourlyAQISeries(hourly: OpenMeteoHourlyPayload): (number | null)[] {
+  const { time, european_aqi, us_aqi } = hourly;
+
+  if (Array.isArray(european_aqi) && european_aqi.length === time?.length) {
+    return european_aqi;
+  }
+
+  if (Array.isArray(us_aqi) && us_aqi.length === time?.length) {
+    return us_aqi;
+  }
+
+  throw new InvalidPayloadError("Forecast payload did not include a usable hourly AQI series");
+}
+
+export function normalizeForecastResponse(
+  payload: OpenMeteoAirQualityResponse,
+  now: () => Date = () => new Date(),
+): ForecastWindow {
+  const { hourly } = payload;
+
+  if (!Array.isArray(hourly?.time) || hourly.time.length === 0) {
+    throw new InvalidPayloadError("Forecast payload is missing hourly observation times");
+  }
+
+  const values = getHourlyAQISeries(hourly);
+
+  // The provider returns whole days, so depending on timezone rounding a few
+  // trailing hours of the prior day may precede "now" — exclude those.
+  const startOfCurrentHour = now();
+  startOfCurrentHour.setMinutes(0, 0, 0);
+  const windowStartMs = startOfCurrentHour.getTime();
+
+  const points: HourlyForecastPoint[] = [];
+  for (let index = 0; index < hourly.time.length; index += 1) {
+    const pointDate = new Date(hourly.time[index]);
+    if (pointDate.getTime() < windowStartMs) {
+      continue;
+    }
+    if (points.length >= FORECAST_WINDOW_HOURS) {
+      break;
+    }
+
+    // A null hour is preserved as-is (category "unknown"), never fabricated.
+    const value = values[index];
+    const aqiValue = hasNumber(value) ? value : null;
+    const categoryKey = getAQICategoryDescriptor(aqiValue).key;
+
+    points.push({
+      timeIso: pointDate.toISOString(),
+      aqiValue,
+      categoryKey,
+      isBestHour: categoryKey === "good",
+    });
+  }
+
+  return {
+    points,
+    requestedHours: FORECAST_WINDOW_HOURS,
+    coveredHours: points.length,
+    isIncomplete: points.length < FORECAST_WINDOW_HOURS,
+    // Depends on the current AQI tier, which is not part of this payload —
+    // derived at display time via getNextBestHourIso (forecastTransform.ts).
+    nextBestHourIso: null,
   };
 }
 
