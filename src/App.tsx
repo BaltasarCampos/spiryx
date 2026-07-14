@@ -1,4 +1,5 @@
 import { AQISummaryCard } from "./components/organisms/AQISummaryCard";
+import { ActivitySafetyChecker } from "./components/organisms/ActivitySafetyChecker";
 import { DashboardLayout } from "./components/organisms/DashboardLayout";
 import { HealthMeaningPanel } from "./components/organisms/HealthMeaningPanel";
 import { PollutantList } from "./components/organisms/PollutantList";
@@ -66,6 +67,7 @@ function App() {
               />
               <HealthMeaningPanel snapshot={snapshot} />
               <PollutantList pollutants={snapshot.pollutants} />
+              <ActivitySafetyChecker activities={["run", "cycle"]} aqiValue={snapshot.aqiValue} />
             </div>
           )}
         </LocationGate>
