@@ -95,3 +95,31 @@ describe("Activity Safety Check – Run/Cycle golden path", () => {
     expect(screen.getByText(/go ahead/i)).toBeInTheDocument();
   });
 });
+
+describe("Activity Safety Check – Kids golden path (US2)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("AQI 40: tapping Safe for Kids? shows Go ahead", async () => {
+    const user = userEvent.setup();
+    await renderAppWithAqi(40);
+    await user.click(screen.getByRole("button", { name: /safe for kids\?/i }));
+    expect(screen.getByText(/go ahead/i)).toBeInTheDocument();
+  });
+
+  it("AQI 75: tapping Safe for Kids? shows Limit activity with sensitive-group/children framing", async () => {
+    const user = userEvent.setup();
+    await renderAppWithAqi(75);
+    await user.click(screen.getByRole("button", { name: /safe for kids\?/i }));
+    expect(screen.getByText(/limit activity/i)).toBeInTheDocument();
+    expect(screen.getByText(/child|sensitive/i)).toBeInTheDocument();
+  });
+
+  it("AQI 160: tapping Safe for Kids? shows Stay inside", async () => {
+    const user = userEvent.setup();
+    await renderAppWithAqi(160);
+    await user.click(screen.getByRole("button", { name: /safe for kids\?/i }));
+    expect(screen.getByText(/stay inside/i)).toBeInTheDocument();
+  });
+});

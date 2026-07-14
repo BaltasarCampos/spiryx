@@ -50,6 +50,41 @@ describe.each(ACTIVITIES)("getActivitySafety – %s boundaries", (activity) => {
   });
 });
 
+const KIDS_BOUNDARY_CASES: [number, RecommendationLevel][] = [
+  [0, "go_ahead"],
+  [40, "go_ahead"],
+  [51, "limit_activity"],
+  [75, "limit_activity"],
+  [100, "limit_activity"],
+  [101, "limit_activity"],
+  [150, "limit_activity"],
+  [151, "stay_inside"],
+  [160, "stay_inside"],
+];
+
+describe("getActivitySafety – kids boundaries (SH-003)", () => {
+  it.each(KIDS_BOUNDARY_CASES)("aqi %i maps to %s", (aqi, expected) => {
+    expect(getActivitySafety(aqi, "kids").recommendationLevel).toBe(expected);
+  });
+
+  it("maps null aqi to stay_inside (SH-001)", () => {
+    expect(getActivitySafety(null, "kids").recommendationLevel).toBe("stay_inside");
+  });
+
+  it("uses sensitive-group/children-specific framing at the 51–100 tier", () => {
+    const reason = getActivitySafety(75, "kids").reason;
+    expect(reason).toMatch(/child|sensitive/i);
+  });
+
+  it("shares identical numeric thresholds with run/cycle (FR-003)", () => {
+    for (const [aqi, expected] of KIDS_BOUNDARY_CASES) {
+      expect(getActivitySafety(aqi, "kids").recommendationLevel).toBe(expected);
+      expect(getActivitySafety(aqi, "run").recommendationLevel).toBe(expected);
+      expect(getActivitySafety(aqi, "cycle").recommendationLevel).toBe(expected);
+    }
+  });
+});
+
 describe("getActivitySafety – checkedAtIso clock injection", () => {
   it("derives checkedAtIso from the injected clock", () => {
     const fixed = new Date("2026-01-01T00:00:00.000Z");

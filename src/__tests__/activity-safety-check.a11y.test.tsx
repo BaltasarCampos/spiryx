@@ -44,6 +44,31 @@ describe("ActivitySafetyChecker – screen-reader compatible result (A11Y-002)",
   });
 });
 
+describe("ActivitySafetyChecker – Kids check flow (US2)", () => {
+  it("the Kids button is not disabled and is reachable via Tab", async () => {
+    const user = userEvent.setup();
+    render(<ActivitySafetyChecker activities={["run", "cycle", "kids"]} aqiValue={75} />);
+
+    const kidsButton = screen.getByRole("button", { name: /safe for kids\?/i });
+    expect(kidsButton).not.toBeDisabled();
+
+    await user.tab();
+    await user.tab();
+    await user.tab();
+    expect(kidsButton).toHaveFocus();
+  });
+
+  it("the Kids button can be activated via the keyboard and announces its result via a live region", async () => {
+    const user = userEvent.setup();
+    render(<ActivitySafetyChecker activities={["kids"]} aqiValue={75} />);
+
+    await user.tab();
+    await user.keyboard("{Enter}");
+    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.getByText(/limit activity/i)).toBeInTheDocument();
+  });
+});
+
 describe("ActivityCard – screen-reader compatible result (A11Y-002)", () => {
   function makeCheck(overrides: Partial<ActivitySafetyCheck> = {}): ActivitySafetyCheck {
     return {

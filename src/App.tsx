@@ -67,7 +67,7 @@ function App() {
               />
               <HealthMeaningPanel snapshot={snapshot} />
               <PollutantList pollutants={snapshot.pollutants} />
-              <ActivitySafetyChecker activities={["run", "cycle"]} aqiValue={snapshot.aqiValue} />
+              <ActivitySafetyChecker activities={["run", "cycle", "kids"]} aqiValue={snapshot.aqiValue} />
             </div>
           )}
         </LocationGate>
