@@ -4,11 +4,13 @@ import { DashboardLayout } from "./components/organisms/DashboardLayout";
 import { ForecastChart } from "./components/organisms/ForecastChart";
 import { HealthMeaningPanel } from "./components/organisms/HealthMeaningPanel";
 import { PollutantList } from "./components/organisms/PollutantList";
+import { TrendIndicator } from "./components/organisms/TrendIndicator";
 import { LocationGate } from "./components/organisms/LocationGate";
 import { RetryButton } from "./components/atoms/RetryButton";
 import { StatusPanel } from "./components/molecules/StatusPanel";
 import { useGeolocation } from "./hooks/useGeolocation";
 import { useCurrentAQI } from "./hooks/useCurrentAQI";
+import { useAQITrend } from "./hooks/useAQITrend";
 import { useHourlyForecast } from "./hooks/useHourlyForecast";
 import { getActivitySafety } from "./utils/activitySafety";
 import { getNextBestHourIso } from "./utils/forecastTransform";
@@ -31,6 +33,9 @@ function App() {
     errorMessage: aqiErrorMessage,
     refresh,
   } = useCurrentAQI({ latitude, longitude, enabled: isGranted });
+
+  // Null until a second reading arrives (first load has nothing to compare).
+  const trend = useAQITrend(snapshot);
 
   // Fetched independently of current conditions: a forecast failure degrades
   // to a status panel below without touching the AQI card or safety checks.
@@ -91,6 +96,7 @@ function App() {
                 locationName={locationName}
                 onRefresh={() => refresh()}
               />
+              <TrendIndicator trend={trend} />
               <HealthMeaningPanel snapshot={snapshot} />
               <PollutantList pollutants={snapshot.pollutants} />
               <ActivitySafetyChecker activities={["run", "cycle", "kids"]} aqiValue={snapshot.aqiValue} />
