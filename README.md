@@ -58,7 +58,9 @@ src/
 - No backend — frontend-only SPA
 - In-memory API response cache (session-scoped, never persisted)
 - Coordinates held in runtime state only — never written to localStorage
-- Only `UserPreferences` (units, reducedMotion) persisted to localStorage
+- Only `UserPreferences` (units, reducedMotion) and `spiryx.activityHistory`
+  (up to 3 recently checked activities, local-only, no server sync) persisted
+  to localStorage
 - No external analytics or tracking scripts
 ---
  

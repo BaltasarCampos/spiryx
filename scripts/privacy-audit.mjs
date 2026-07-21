@@ -31,7 +31,10 @@ const VIOLATION_PATTERNS = [
   { pattern: /hotjar/i, label: "Hotjar" },
   { pattern: /facebook\.net|fbevents/i, label: "Facebook pixel" },
   { pattern: /intercom/i, label: "Intercom" },
-  { pattern: /amplitude/i, label: "Amplitude" },
+  // Requires a distinguishing marker (domain/package), not the bare word —
+  // "amplitude" alone also appears as a legitimate SVG filter attribute name
+  // (feFuncR/feFuncG/feFuncB "amplitude") in charting library bundles.
+  { pattern: /amplitude\.com|@amplitude\/|amplitude-js/i, label: "Amplitude" },
   { pattern: /heap\.io/i, label: "Heap analytics" },
   { pattern: /plausible\.io/i, label: "Plausible analytics" },
   // console.log in production (Code Quality)

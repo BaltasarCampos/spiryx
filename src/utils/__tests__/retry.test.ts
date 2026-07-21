@@ -131,6 +131,17 @@ describe("withRetry", () => {
     expect(op).not.toHaveBeenCalled();
   });
 
+  it("re-throws immediately without retrying when the operation itself rejects with AbortError", async () => {
+    // e.g. fetch() rejecting with AbortError because the signal fired while
+    // the request was in flight, distinct from an abort during the sleep
+    // between retries (covered above).
+    const op = vi.fn().mockRejectedValue(new DOMException("aborted", "AbortError"));
+    await expect(
+      withRetry(op, { maxAttempts: 3, baseDelayMs: 1, shouldRetry: () => true }),
+    ).rejects.toMatchObject({ name: "AbortError" });
+    expect(op).toHaveBeenCalledTimes(1);
+  });
+
   it("stops retrying and re-throws AbortError when aborted mid-flight", async () => {
     vi.useFakeTimers();
     const controller = new AbortController();

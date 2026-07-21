@@ -28,7 +28,11 @@ export function TrendIndicator({ trend }: TrendIndicatorProps) {
   const percent = formatPercent(Math.abs(trend.percentChange));
 
   return (
-    <p className={`flex items-center gap-1.5 text-sm ${meta.className}`}>
+    <p
+      role="status"
+      aria-live="polite"
+      className={`flex items-center gap-1.5 text-sm ${meta.className}`}
+    >
       <span aria-hidden="true">{meta.symbol}</span>
       <span className="font-semibold">{meta.label}</span>
       <span>

@@ -68,4 +68,9 @@ describe("TrendIndicator", () => {
     const { container } = render(<TrendIndicator trend={null} />);
     expect(container).toBeEmptyDOMElement();
   });
+
+  it("uses a live region so a direction change on refresh is announced without a focus change", () => {
+    render(<TrendIndicator trend={makeTrend()} />);
+    expect(screen.getByRole("status")).toBeInTheDocument();
+  });
 });
