@@ -42,20 +42,20 @@ export function useCurrentAQI({
     };
   }, []);
  
-  const doFetch = useCallback(async () => {
+  const doFetch = useCallback(async (bypassCache = false) => {
     if (!enabled || latitude === null || longitude === null) return;
- 
+
     abortControllerRef.current?.abort();
     const controller = new AbortController();
     abortControllerRef.current = controller;
- 
+
     if (!isMountedRef.current) return;
     setLoadState("loading");
     setErrorMessage(null);
- 
+
     try {
       const [nextSnapshot, nextLocationName] = await Promise.all([
-        getCurrentAQI({ latitude, longitude, signal: controller.signal }),
+        getCurrentAQI({ latitude, longitude, signal: controller.signal, bypassCache }),
         getLocationName({ latitude, longitude, signal: controller.signal }),
       ]);
  
@@ -82,8 +82,11 @@ export function useCurrentAQI({
  
   // 15-minute auto-refresh — delegated to useRefreshTimer so manual refresh
   // also resets the interval, preventing a double-fetch shortly after.
+  // Refresh-triggered fetches always bypass the cache (unlike the initial
+  // mount fetch) so a "Refresh" click never silently returns a stale
+  // snapshot within the cache TTL window.
   const { triggerRefresh } = useRefreshTimer({
-    onRefresh: useCallback(() => void doFetch(), [doFetch]),
+    onRefresh: useCallback(() => void doFetch(true), [doFetch]),
     enabled: enabled && latitude !== null && longitude !== null,
   });
  
